@@ -5,8 +5,6 @@ export interface Produto {
     preco: number;
     estoque: number;
     quantidadeVendida: number;
-    descricao: string;
-    imagemUrl: string;
 }
 
 export interface Cliente {
@@ -25,26 +23,30 @@ export interface Funcionario {
 
 export interface DadosDashboard {
     sucesso: boolean;
+    mensagem?: string;
     produtos: Produto[];
-    clientes: Cliente[];
-    funcionarios: Funcionario[];
-}
-
-export interface ProdutoFormatado {
-    id: number;
-    nome: string;
-    categoria: string;
-    precoFormatado: string;
-    descricao: string;
-    imagemUrl: string;
-}
-
-export interface MetricasDashboard {
-    faturamentoTotalFormatado: string;
     totalProdutos: number;
     totalClientes: number;
     totalFuncionarios: number;
-    produtosEstoqueCritico: Produto[];
+}
+
+export interface MetricasDashboard {
+    totalProdutos: number;
+    totalClientes: number;
+    totalFuncionarios: number;
+    faturamentoTotal: number;
+    faturamentoFormatado: string;
     produtoMaisVendido: string;
-    produtosFormatadosParaTabela: ProdutoFormatado[];
+    produtosCriticos: Produto[];
+    produtosFormatados: {
+        id: number;
+        nome: string;
+        categoria: string;
+        preco: number;
+        precoFormatado: string;
+        estoque: number;
+        quantidadeVendida: number;
+    }[];
+    maiorEstoque: string;
+    menorEstoque: string;
 }

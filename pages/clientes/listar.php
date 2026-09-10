@@ -85,13 +85,11 @@ class="btn btn-primary btn-sm"
 Editar
 </a>
 
-<a
-href="excluir.php?id=<?= $cliente['id']; ?>"
-class="btn btn-danger btn-sm"
-onclick="return confirm('Deseja realmente excluir este cliente?')"
->
-Excluir
-</a>
+<button type="button"
+        class="btn btn-danger"
+        onclick="excluir(<?= $cliente['id']; ?>)">
+    Excluir
+</button>
 
 </td>
 
@@ -124,5 +122,22 @@ Voltar para Dashboard
 </div>
 
 </body>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<script>
+function excluir(id) {
+    Swal.fire({
+        title: "Você tem certeza?",
+        text: "O cliente será excluído.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Excluir",
+        cancelButtonText: "Cancelar"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "excluir.php?id=" + id;
+        }
+    });
+}
+</script>
 </html>

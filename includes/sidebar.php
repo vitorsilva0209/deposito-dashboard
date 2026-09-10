@@ -1,25 +1,41 @@
 <div class="sidebar">
 
-    <h4>Menu</h4>
+<h4 class="text-white text-center mb-4">
 
-    <a href="dashboard.php">
-        <i class="bi bi-speedometer2"></i>
-        Dashboard
-    </a>
+Menu
 
-    <a href="pages/produtos/listar.php">
-        <i class="bi bi-box-seam"></i>
-        Produtos
-    </a>
+</h4>
 
-    <a href="pages/clientes/listar.php">
-        <i class="bi bi-people"></i>
-        Clientes
-    </a>
+<a href="dashboard.php">
 
-    <a href="pages/funcionarios/listar.php">
-        <i class="bi bi-person-badge"></i>
-        Funcionários
-    </a>
+<i class="bi bi-speedometer2"></i>
+
+Dashboard
+
+</a>
+
+<a href="pages/listar.php">
+
+<i class="bi bi-box-seam"></i>
+
+Produtos
+
+</a>
+
+<a href="clientes.php">
+
+<i class="bi bi-people"></i>
+
+Clientes
+
+</a>
+
+<a href="funcionarios.php">
+
+<i class="bi bi-person-badge"></i>
+
+Funcionários
+
+</a>
 
 </div>

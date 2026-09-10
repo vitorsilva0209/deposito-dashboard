@@ -1,110 +1,111 @@
-/**
- * Formata um número para moeda brasileira.
- */
-export function formatarMoeda(valor) {
-    return new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-    }).format(valor);
-}
-/**
- * Processa os dados recebidos da API
- * e gera as métricas utilizadas na Dashboard.
- */
 export function processarMetricasDashboard(dados) {
-    const produtos = dados.produtos ?? [];
-    const clientes = dados.clientes ?? [];
-    const funcionarios = dados.funcionarios ?? [];
     /*
-    ==========================================
-    REDUCE
-    ==========================================
-
-    Calcula o faturamento total.
-
-    Fórmula:
-
-    preço × quantidade vendida
+    REQUISITO: Edge Cases
+    Garante que o sistema continue funcionando mesmo
+    quando não existirem produtos cadastrados.
+    */
+    const produtos = dados.produtos ?? [];
+    /*
+    REQUISITO: Reduce
+    Calcula o faturamento total multiplicando o preço
+    pela quantidade vendida de cada produto.
     */
     const faturamentoTotal = produtos.reduce((total, produto) => {
-        const preco = Number.isFinite(produto.preco)
-            ? produto.preco
-            : 0;
-        const quantidade = Number.isFinite(produto.quantidadeVendida)
-            ? produto.quantidadeVendida
-            : 0;
-        return total + (preco * quantidade);
+        return total +
+            produto.preco *
+                produto.quantidadeVendida;
     }, 0);
     /*
-    ==========================================
-    FILTER
-    ==========================================
-
-    Produtos com estoque crítico.
-
-    Consideramos crítico:
-    estoque menor ou igual a 5.
+    REQUISITO: Filter
+    Filtra os produtos que possuem estoque crítico.
+    Produtos com 10 unidades ou menos são considerados críticos.
     */
-    const produtosEstoqueCritico = produtos.filter((produto) => {
-        const estoque = Number.isFinite(produto.estoque)
-            ? produto.estoque
-            : 0;
-        return estoque <= 5;
-    });
+    const produtosCriticos = produtos.filter(produto => produto.estoque <= 10);
     /*
-    ==========================================
-    RANKING
-    ==========================================
-
-    Descobre qual produto possui
-    a maior quantidade de vendas.
+    REQUISITO: Ranking
+    Ordena os produtos pela quantidade vendida para
+    descobrir o produto mais vendido.
     */
-    const produtoMaisVendido = produtos.reduce((produtoAtual, produto) => {
-        if (produtoAtual === null) {
-            return produto;
-        }
-        return produto.quantidadeVendida >
-            produtoAtual.quantidadeVendida
-            ? produto
-            : produtoAtual;
-    }, null);
+    const produtosOrdenados = [...produtos].sort((a, b) => b.quantidadeVendida -
+        a.quantidadeVendida);
+    let produtoMaisVendido = "Nenhum produto vendido";
     /*
-    Se não existir nenhum produto vendido,
-    mostramos uma mensagem amigável.
+    REQUISITO: Edge Cases
+    Verifica se existem produtos e vendas antes
+    de acessar a primeira posição do array.
     */
-    const nomeProdutoMaisVendido = produtoMaisVendido !== null &&
-        produtoMaisVendido.quantidadeVendida > 0
-        ? `${produtoMaisVendido.nome} (${produtoMaisVendido.quantidadeVendida} vendas)`
-        : "Nenhum produto vendido";
+    if (produtosOrdenados.length > 0 &&
+        produtosOrdenados[0].quantidadeVendida > 0) {
+        produtoMaisVendido =
+            produtosOrdenados[0].nome +
+                " (" +
+                produtosOrdenados[0].quantidadeVendida +
+                " vendas)";
+    }
     /*
-    ==========================================
-    MAP
-    ==========================================
-
-    Prepara os produtos para serem
-    apresentados na tabela da Dashboard.
+    REQUISITO: Maior quantidade em estoque
+    Encontra o produto que possui a maior quantidade
+    disponível no estoque.
     */
-    const produtosFormatadosParaTabela = produtos.map((produto) => {
-        return {
-            id: produto.id,
-            nome: produto.nome,
-            categoria: produto.categoria || "Sem categoria",
-            precoFormatado: formatarMoeda(Number.isFinite(produto.preco)
-                ? produto.preco
-                : 0),
-            descricao: produto.descricao ||
-                "Nenhuma descrição disponível.",
-            imagemUrl: produto.imagemUrl ||
-                "imagens/sem-imagem.jpg"
-        };
+    let maiorEstoque = "Nenhum produto";
+    if (produtos.length > 0) {
+        const produtoMaiorEstoque = produtos.reduce((maior, produto) => {
+            return produto.estoque > maior.estoque
+                ? produto
+                : maior;
+        }, produtos[0]);
+        maiorEstoque =
+            produtoMaiorEstoque.nome +
+                " (" +
+                produtoMaiorEstoque.estoque +
+                " unidades)";
+    }
+    /*
+    REQUISITO: Estoque Crítico
+    Identifica os produtos que possuem pouca quantidade
+    disponível para alertar o usuário.
+    */
+    let estoqueCritico = "Nenhum produto";
+    if (produtosCriticos.length > 0) {
+        estoqueCritico =
+            produtosCriticos
+                .map(produto => produto.nome +
+                " (" +
+                produto.estoque +
+                ")")
+                .join(", ");
+    }
+    /*
+    REQUISITO: Map
+    Transforma os produtos para uma estrutura preparada
+    para apresentação no frontend.
+    */
+    const produtosFormatados = produtos.map(produto => ({
+        id: produto.id,
+        nome: produto.nome,
+        categoria: produto.categoria,
+        preco: produto.preco,
+        precoFormatado: produto.preco.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL"
+        }),
+        estoque: produto.estoque,
+        quantidadeVendida: produto.quantidadeVendida
+    }));
+    const faturamentoFormatado = faturamentoTotal.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
     });
     return {
-        faturamentoTotalFormatado: formatarMoeda(faturamentoTotal),
-        totalProdutos: produtos.length,
-        totalClientes: clientes.length,
-        totalFuncionarios: funcionarios.length,
-        produtosEstoqueCritico,
-        produtoMaisVendido: nomeProdutoMaisVendido,
-        produtosFormatadosParaTabela
+        totalProdutos: dados.totalProdutos ?? 0,
+        totalClientes: dados.totalClientes ?? 0,
+        totalFuncionarios: dados.totalFuncionarios ?? 0,
+        faturamentoTotal,
+        faturamentoFormatado,
+        produtoMaisVendido,
+        produtosCriticos,
+        produtosFormatados,
+        maiorEstoque,
+        estoqueCritico
     };
 }

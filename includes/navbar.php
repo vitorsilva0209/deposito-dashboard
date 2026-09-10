@@ -1,24 +1,34 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
 
-    <div class="container-fluid">
+<div class="container-fluid">
 
-        <a class="navbar-brand" href="dashboard.php">
-            Depósito Brasil
-        </a>
+<a class="navbar-brand" href="dashboard.php">
 
-        <div class="d-flex align-items-center">
+Depósito Brasil
 
-            <span class="text-white me-3">
-                Olá,
-                <?php echo htmlspecialchars($_SESSION["nome"]); ?>
-            </span>
+</a>
 
-            <a href="logout.php" class="btn btn-light">
-                Sair
-            </a>
+<div class="d-flex align-items-center">
 
-        </div>
+<span class="text-white me-3">
 
-    </div>
+Olá,
+
+<?= htmlspecialchars($_SESSION["nome"] ?? "Usuário"); ?>
+
+</span>
+
+<a
+    href="logout.php"
+    class="btn btn-light"
+>
+
+Sair
+
+</a>
+
+</div>
+
+</div>
 
 </nav>

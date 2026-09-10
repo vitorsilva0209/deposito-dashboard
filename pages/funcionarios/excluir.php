@@ -5,7 +5,7 @@ include("../../config/conexao.php");
 $id = (int) ($_GET['id'] ?? 0);
 
 $stmt = $conn->prepare(
-    "SELECT id FROM clientes WHERE id = ?"
+    "SELECT id FROM funcionarios WHERE id = ?"
 );
 
 $stmt->bind_param("i", $id);
@@ -17,7 +17,7 @@ if ($resultado->num_rows === 0) {
 
     echo "<script>
 
-        alert('Cliente não encontrado.');
+        alert('Funcionário não encontrado.');
 
         window.location='listar.php';
 
@@ -27,7 +27,7 @@ if ($resultado->num_rows === 0) {
 }
 
 $stmt = $conn->prepare(
-    "DELETE FROM clientes WHERE id = ?"
+    "DELETE FROM funcionarios WHERE id = ?"
 );
 
 $stmt->bind_param("i", $id);
@@ -36,7 +36,7 @@ if ($stmt->execute()) {
 
     echo "<script>
 
-        alert('Cliente excluído com sucesso!');
+        alert('Funcionário excluído com sucesso!');
 
         window.location='listar.php';
 
@@ -46,7 +46,7 @@ if ($stmt->execute()) {
 
     echo "<script>
 
-        alert('Não foi possível excluir o cliente.');
+        alert('Não foi possível excluir o funcionário.');
 
         window.location='listar.php';
 

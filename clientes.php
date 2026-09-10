@@ -7,7 +7,8 @@ if (!isset($_SESSION["id"])) {
     exit();
 }
 
-include("config/conexao.php");
+
+include("../../config/conexao.php");
 
 $mensagem = "";
 

@@ -59,6 +59,7 @@ $resultado = $conn->query("
 ");
 
 if ($resultado && $resultado->num_rows > 0) {
+
     $dados = $resultado->fetch_assoc();
 
     $produtoMaisVendido =
@@ -75,601 +76,861 @@ $resProdutos = $conn->query("
     LIMIT 10
 ");
 
+$imagens = [
+    "Cimento CP-II" => "cimento-cp-ii.jpg",
+    "Tijolo Cerâmico" => "tijolo-ceramico.jpg",
+    "Areia Média" => "areia-media.jpg",
+    "Brita 1" => "brita-1.jpg",
+    "Telha Cerâmica" => "telha-ceramica.jpg",
+    "Tinta Acrílica" => "tinta-acrilica.jpg",
+    "Argamassa" => "argamassa.jpg",
+    "Piso Cerâmico" => "piso-ceramico.jpg",
+    "Tubo PVC 100mm" => "tubo-pvc-100mm.jpg",
+    "Ferro 10mm" => "ferro-10mm.jpg"
+];
+
 ?>
 
 <!DOCTYPE html>
+
 <html lang="pt-br">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>Dashboard - Depósito Brasil</title>
+<title>Dashboard - Depósito Brasil</title>
 
-    <style>
+<style>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', sans-serif;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
 
-        body {
-            display: flex;
-            background: #f4f6f9;
-            min-height: 100vh;
-            color: #333;
-        }
+body {
+    display: flex;
+    background: #f4f6f9;
+    min-height: 100vh;
+    color: #333;
+}
 
-        .sidebar {
-            width: 220px;
-            background: #1e1e1e;
-            color: #fff;
-            min-height: 100vh;
-            padding-top: 20px;
-        }
+.sidebar {
+    width: 220px;
+    background: #1e1e1e;
+    color: #fff;
+    min-height: 100vh;
+    padding-top: 20px;
+}
 
-        .sidebar h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 20px;
-        }
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 20px;
+}
 
-        .sidebar a {
-            display: block;
-            padding: 12px 20px;
-            color: #b0b0b0;
-            text-decoration: none;
-            font-size: 15px;
-        }
+.sidebar a {
+    display: block;
+    padding: 12px 20px;
+    color: #b0b0b0;
+    text-decoration: none;
+    font-size: 15px;
+}
 
-        .sidebar a:hover,
-        .sidebar a.active {
-            background: #d32f2f;
-            color: #fff;
-            font-weight: bold;
-        }
+.sidebar a:hover,
+.sidebar a.active {
+    background: #d32f2f;
+    color: #fff;
+    font-weight: bold;
+}
 
-        .content {
-            flex: 1;
-            min-width: 0;
-        }
+.content {
+    flex: 1;
+    min-width: 0;
+}
 
-        .header {
-            background: #d32f2f;
-            color: #fff;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+.header {
+    background: #d32f2f;
+    color: #fff;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-        .header a {
-            background: #fff;
-            color: #d32f2f;
-            padding: 6px 15px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: bold;
-            margin-left: 10px;
-        }
+.header a {
+    background: #fff;
+    color: #d32f2f;
+    padding: 6px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 10px;
+}
 
-        .main {
-            padding: 30px;
-        }
+.main {
+    padding: 30px;
+}
 
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
 
-        .card-stat {
-            padding: 20px;
-            border-radius: 8px;
-            color: #fff;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
+.card-stat {
+    padding: 20px;
+    border-radius: 8px;
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
 
-        .card-stat h1 {
-            font-size: 36px;
-            margin-bottom: 5px;
-        }
+.card-stat h1 {
+    font-size: 36px;
+    margin-bottom: 5px;
+}
 
-        .bg-blue {
-            background: #007bff;
-        }
+.bg-blue {
+    background: #007bff;
+}
 
-        .bg-green {
-            background: #28a745;
-        }
+.bg-green {
+    background: #28a745;
+}
 
-        .bg-yellow {
-            background: #ffc107;
-            color: #333;
-        }
+.bg-yellow {
+    background: #ffc107;
+    color: #333;
+}
 
-        .bg-red {
-            background: #dc3545;
-        }
+.bg-red {
+    background: #dc3545;
+}
 
-        .card {
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-top: 3px solid #d32f2f;
-        }
+.card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-top: 3px solid #d32f2f;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
 
-        th,
-        td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #dee2e6;
-            vertical-align: middle;
-        }
+th,
+td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: middle;
+}
 
-        th {
-            background: #f8f9fa;
-        }
+th {
+    background: #f8f9fa;
+}
 
-        tr:hover {
-            background: #f1f1f1;
-        }
+tr:hover {
+    background: #f1f1f1;
+}
 
-        .btn-detalhes {
-            padding: 7px 12px;
-            background: #d32f2f;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+.produto-imagem {
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: #f8f9fa;
+    padding: 4px;
+}
 
-        .btn-detalhes:hover {
-            background: #a92323;
-        }
+.produto-mais-vendido {
+    font-size: 18px;
+    color: #333;
+}
 
-        .produto-imagem {
-            width: 45px;
-            height: 45px;
-            object-fit: cover;
-            border-radius: 5px;
-        }
+.estoque-critico {
+    margin-top: 20px;
+}
 
-        .produto-mais-vendido {
-            font-size: 18px;
-            color: #333;
-        }
+.estoque-critico ul {
+    margin-top: 15px;
+    padding-left: 20px;
+}
 
-        .estoque-critico {
-            margin-top: 20px;
-        }
+.estoque-critico li {
+    margin-bottom: 8px;
+}
 
-        .estoque-critico ul {
-            margin-top: 15px;
-            padding-left: 20px;
-        }
+@media (max-width: 1100px) {
 
-        .estoque-critico li {
-            margin-bottom: 8px;
-        }
+    .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
-        @media (max-width: 900px) {
+}
 
-            .cards-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+@media (max-width: 900px) {
 
-            .sidebar {
-                width: 180px;
-            }
+    .sidebar {
+        width: 180px;
+    }
 
-        }
+}
 
-        @media (max-width: 600px) {
+@media (max-width: 600px) {
 
-            body {
-                display: block;
-            }
+    body {
+        display: block;
+    }
 
-            .sidebar {
-                width: 100%;
-                min-height: auto;
-            }
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+    }
 
-            .cards-grid {
-                grid-template-columns: 1fr;
-            }
+    .cards-grid {
+        grid-template-columns: 1fr;
+    }
 
-            .main {
-                padding: 15px;
-                overflow-x: auto;
-            }
+    .main {
+        padding: 15px;
+        overflow-x: auto;
+    }
 
-        }
+}
 
-    </style>
+</style>
 
 </head>
 
 <body>
 
-    <div class="sidebar">
+<div class="sidebar">
 
-        <h2>Painel</h2>
+    <h2>Painel</h2>
 
-        <a href="dashboard.php" class="active">
-            Dashboard
-        </a>
+    <a href="dashboard.php" class="active">
+        Dashboard
+    </a>
 
-        <a href="produtos.php">
-            Produtos
-        </a>
+    <a href="pages/produtos/listar.php">
+        Produtos
+    </a>
 
-        <a href="clientes.php">
-            Clientes
-        </a>
+    <a href="pages/clientes/listar.php">
+        Clientes
+    </a>
 
-        <a href="funcionarios.php">
-            Funcionários
-        </a>
+    <a href="pages/funcionarios/listar.php">
+        Funcionários
+    </a>
+
+</div>
+
+<div class="content">
+
+    <div class="header">
+
+        <h3>
+            Depósito Brasil
+        </h3>
+
+        <div>
+
+            <span>
+                Olá,
+                <?php
+                echo htmlspecialchars($_SESSION["nome"]);
+                ?>
+            </span>
+
+            <a href="logout.php">
+                Sair
+            </a>
+
+        </div>
 
     </div>
 
+    <div class="main">
 
-    <div class="content">
+        <h2>
+            Dashboard
+        </h2>
 
-        <div class="header">
+        <br>
 
-            <h3>
-                Depósito Brasil
-            </h3>
+        <div class="cards-grid">
 
-            <div>
+            <div class="card-stat bg-blue">
 
-                <span>
-                    Olá,
+                <h1 id="total-produtos">
+                    <?php echo $totalProdutos; ?>
+                </h1>
+
+                <p>
+                    Produtos
+                </p>
+
+            </div>
+
+   <div class="card-stat bg-green">
+
+    <h1 id="total-clientes">
+        <?php echo $totalClientes; ?>
+    </h1>
+
+    <p>Clientes</p>
+
+</div>
+
+<div class="card-stat bg-yellow">
+
+    <h1 id="total-funcionarios">
+        <?php echo $totalFuncionarios; ?>
+    </h1>
+
+    <p>Funcionários</p>
+
+</div>
+
+            <div class="card-stat bg-red">
+
+                <h1 id="faturamento-total">
+
+                    R$
                     <?php
-                    echo htmlspecialchars($_SESSION["nome"]);
-                    ?>
-                </span>
 
-                <a href="logout.php">
-                    Sair
-                </a>
+                    echo number_format(
+                        $faturamentoTotal,
+                        2,
+                        ",",
+                        "."
+                    );
+
+                    ?>
+
+                </h1>
+
+                <p>
+                    Faturamento Total
+                </p>
 
             </div>
 
         </div>
 
+        <div class="card">
 
-        <div class="main">
-
-            <h2>
-                Dashboard
-            </h2>
-
-            <br>
-
-
-            <div class="cards-grid">
-
-                <div class="card-stat bg-blue">
-
-                <h1>
-    <?php echo $totalProdutos; ?>
-</h1>
-
-                    <p>
-                        Produtos
-                    </p>
-
-                </div>
-
-
-                <div class="card-stat bg-green">
-
-                    <h1>
-    <?php echo $totalClientes; ?>
-</h1>
-
-                    <p>
-                        Clientes
-                    </p>
-
-                </div>
-
-
-                <div class="card-stat bg-yellow">
-
-                <h1>
-    <?php echo $totalFuncionarios; ?>
-</h1>
-
-                    <p>
-                        Funcionários
-                    </p>
-
-                </div>
-
-
-                <div class="card-stat bg-red">
-
-                   <h1>
-    R$
-    <?php
-    echo number_format(
-        $faturamentoTotal,
-        2,
-        ",",
-        "."
-    );
-    ?>
-</h1>
-                    <p>
-                        Faturamento Total
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="card">
-
-                <h3>
-                    Produto Mais Vendido
-                </h3>
-
-                <br>
-
-               <p>
-    <?php echo htmlspecialchars($produtoMaisVendido); ?>
-</p>
-
-            </div>
-
+            <h3>
+                Produto Mais Vendido
+            </h3>
 
             <br>
 
+            <p
+                id="produto-mais-vendido"
+                class="produto-mais-vendido"
+            >
 
-            <div class="card">
+                <?php
+                echo htmlspecialchars($produtoMaisVendido);
+                ?>
 
-                <h3>
-                    Produtos
-                </h3>
+            </p>
 
-                <table>
+        </div>
 
-                    <thead>
+        <br>
+
+        <div class="card">
+
+            <h3>
+                Produtos
+            </h3>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Imagem</th>
+
+                        <th>Produto</th>
+
+                        <th>Categoria</th>
+
+                        <th>Preço</th>
+
+                        <th>Vendas</th>
+
+                    </tr>
+                 
+       
+    </div>
+</div>
+
+                </thead>
+
+                <tbody id="tabela-produtos-corpo">
+
+                    <?php if ($resProdutos && $resProdutos->num_rows > 0): ?>
+
+                        <?php while ($p = $resProdutos->fetch_assoc()): ?>
+
+                            <?php
+
+                            $nomeProduto = $p["nome"];
+
+                            $imagem = $imagens[$nomeProduto]
+                                ?? "produto-sem-imagem.jpg";
+
+                            ?>
+
+                            <tr>
+
+                                <td>
+                                    #<?php echo (int)$p["id"]; ?>
+                                </td>
+
+                                <td>
+
+                                    <img
+                                        src="imagens/img/produtos/<?php echo htmlspecialchars($imagem); ?>"
+                                        alt="<?php echo htmlspecialchars($nomeProduto); ?>"
+                                        class="produto-imagem"
+                                    >
+
+                                </td>
+
+                                <td>
+
+                                    <strong>
+                                        <?php
+                                        echo htmlspecialchars($nomeProduto);
+                                        ?>
+                                    </strong>
+
+                                </td>
+
+                                <td>
+
+                                    <?php
+                                    echo htmlspecialchars(
+                                        $p["categoria"]
+                                    );
+                                    ?>
+
+                                </td>
+
+                                <td>
+
+                                    R$
+
+                                    <?php
+
+                                    echo number_format(
+                                        (float)$p["preco"],
+                                        2,
+                                        ",",
+                                        "."
+                                    );
+
+                                    ?>
+
+                                </td>
+
+                                <td>
+                                    0
+                                </td>
+
+                            </tr>
+
+                        <?php endwhile; ?>
+
+                    <?php else: ?>
 
                         <tr>
 
-                            <th>ID</th>
-
-                            <th>Imagem</th>
-
-                            <th>Produto</th>
-
-                            <th>Categoria</th>
-
-                            <th>Preço</th>
-
-                            <th>Ações</th>
+                            <td
+                                colspan="6"
+                                style="text-align:center;"
+                            >
+                                Nenhum produto cadastrado.
+                            </td>
 
                         </tr>
 
-                    </thead>
+                    <?php endif; ?>
 
+                </tbody>
 
-                  <tbody>
+            </table>
 
-<?php if ($resProdutos && $resProdutos->num_rows > 0): ?>
+        </div>
 
-    <?php while ($p = $resProdutos->fetch_assoc()): ?>
+        <br>
 
-        <tr>
+        <div class="card estoque-critico">
 
-            <td>
-                #<?php echo $p["id"]; ?>
-            </td>
+            <h3>
+                Produtos com Estoque Crítico
+            </h3>
 
-            <td>
+            <ul id="lista-estoque-critico">
 
-                <?php if (!empty($p["imagem_url"])): ?>
+                <?php
 
-                    <img
-                        src="<?php echo htmlspecialchars($p["imagem_url"]); ?>"
-                        alt="<?php echo htmlspecialchars($p["nome"]); ?>"
-                        style="
-                            width:45px;
-                            height:45px;
-                            object-fit:cover;
-                            border-radius:5px;
-                        "
-                    >
+                $resultadoEstoque = $conn->query("
+                    SELECT nome, estoque
+                    FROM produtos
+                    WHERE estoque <= 10
+                    ORDER BY estoque ASC
+                ");
+
+                if (
+                    $resultadoEstoque &&
+                    $resultadoEstoque->num_rows > 0
+                ):
+
+                ?>
+
+                    <?php while ($estoque = $resultadoEstoque->fetch_assoc()): ?>
+
+                        <li>
+
+                            <?php
+                            echo htmlspecialchars(
+                                $estoque["nome"]
+                            );
+                            ?>
+
+                            -
+
+                            <?php
+                            echo (int)$estoque["estoque"];
+                            ?>
+
+                            unidades
+
+                        </li>
+
+                    <?php endwhile; ?>
 
                 <?php else: ?>
 
-                    Sem imagem
+                    <li>
+                        Nenhum produto com estoque crítico.
+                    </li>
 
                 <?php endif; ?>
 
-            </td>
+            </ul>
 
-            <td>
-                <strong>
-                    <?php echo htmlspecialchars($p["nome"]); ?>
-                </strong>
-            </td>
+        </div>
 
-            <td>
-                <?php echo htmlspecialchars($p["categoria"]); ?>
-            </td>
+    </div>
 
-            <td>
-                R$
-                <?php
-                echo number_format(
-                    $p["preco"],
-                    2,
-                    ",",
-                    "."
+</div>
+
+<script type="module">
+
+async function carregarDashboard() {
+
+    try {
+
+        const resposta = await fetch("api_dashboard.php");
+
+        if (!resposta.ok) {
+            throw new Error("Erro HTTP: " + resposta.status);
+        }
+
+        const dados = await resposta.json();
+
+        const produtos = Array.isArray(dados.produtos)
+            ? dados.produtos
+            : [];
+
+        const totalProdutos =
+            document.getElementById("total-produtos");
+
+        const totalClientes =
+            document.getElementById("total-clientes");
+
+        const totalFuncionarios =
+            document.getElementById("total-funcionarios");
+
+        const faturamento =
+            document.getElementById("faturamento-total");
+
+        const produtoMaisVendido =
+            document.getElementById("produto-mais-vendido");
+
+        const tabela =
+            document.getElementById("tabela-produtos-corpo");
+
+        if (totalProdutos) {
+            totalProdutos.textContent =
+                String(dados.produtos?.length ?? 0);
+        }
+
+  if (totalClientes) {
+    totalClientes.textContent =
+        String(dados.totalClientes ?? 0);
+}
+
+if (totalFuncionarios) {
+    totalFuncionarios.textContent =
+        String(dados.totalFuncionarios ?? 0);
+}
+
+        const faturamentoTotal = produtos.reduce(
+            (total, produto) => {
+
+                const vendas =
+                    Number(produto.quantidadeVendida ?? 0);
+
+                return total +
+                    Number(produto.preco) * vendas;
+
+            },
+            0
+        );
+
+        if (faturamento) {
+
+            faturamento.textContent =
+                faturamentoTotal.toLocaleString(
+                    "pt-BR",
+                    {
+                        style: "currency",
+                        currency: "BRL"
+                    }
                 );
-                ?>
-            </td>
 
-            <td>
+        }
 
-                <button
-                    class="btn-detalhes"
-                    type="button"
-                    onclick="alert('Produto: <?php echo htmlspecialchars($p["nome"]); ?>')"
-                >
-                    Ver Detalhes
-                </button>
+        const estoqueCritico = produtos.filter(
+            produto =>
+                Number(produto.estoque ?? 0) <= 10
+        );
 
-            </td>
+        const produtoMaisVendidoDados =
+            produtos.length > 0
+                ? produtos.reduce(
+                    (maior, produto) => {
 
-        </tr>
+                        return Number(
+                            produto.quantidadeVendida ?? 0
+                        ) >
+                        Number(
+                            maior.quantidadeVendida ?? 0
+                        )
+                            ? produto
+                            : maior;
 
-    <?php endwhile; ?>
+                    }
+                )
+                : null;
 
-<?php else: ?>
+        if (produtoMaisVendido) {
 
-    <tr>
+            if (produtoMaisVendidoDados) {
 
-        <td
-            colspan="6"
-            style="text-align:center;"
-        >
-            Nenhum produto cadastrado.
-        </td>
+                produtoMaisVendido.textContent =
+                    `${produtoMaisVendidoDados.nome} ` +
+                    `(${produtoMaisVendidoDados.quantidadeVendida ?? 0} vendas)`;
 
-    </tr>
+            } else {
 
-<?php endif; ?>
+                produtoMaisVendido.textContent =
+                    "Nenhum produto vendido";
 
-</tbody>
+            }
 
-                </table>
+        }
 
-            </div>
+        if (tabela) {
 
+            if (produtos.length === 0) {
 
-            <br>
+                tabela.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align:center;">
+                            Nenhum produto cadastrado.
+                        </td>
+                    </tr>
+                `;
 
+            } else {
 
-            <div class="card estoque-critico">
+                const produtosFormatados =
+                    produtos.map(
+                        produto => {
 
-                <h3>
-                    Produtos com Estoque Crítico
-                </h3>
+                            const preco =
+                                Number(produto.preco).toLocaleString(
+                                    "pt-BR",
+                                    {
+                                        style: "currency",
+                                        currency: "BRL"
+                                    }
+                                );
 
-                <ul id="lista-estoque-critico">
+                            const imagens = {
 
-                    <li>
-                        Carregando...
-                    </li>
+                                "Cimento CP-II":
+                                    "cimento-cp-ii.jpg",
 
-                </ul>
+                                "Tijolo Cerâmico":
+                                    "tijolo-ceramico.jpg",
 
-            </div>
+                                "Areia Média":
+                                    "areia-media.jpg",
 
-        </div>
+                                "Brita 1":
+                                    "brita-1.jpg",
 
-    </div>
+                                "Telha Cerâmica":
+                                    "telha-ceramica.jpg",
 
+                                "Tinta Acrílica":
+                                    "tinta-acrilica.jpg",
 
-    <div
-        id="modal-produto"
-        style="
-            display:none;
-            position:fixed;
-            top:0;
-            left:0;
-            width:100%;
-            height:100%;
-            background:rgba(0,0,0,0.6);
-            justify-content:center;
-            align-items:center;
-            z-index:1000;
-        "
-    >
+                                "Argamassa":
+                                    "argamassa.jpg",
 
-        <div
-            style="
-                background:#fff;
-                padding:25px;
-                border-radius:8px;
-                width:90%;
-                max-width:450px;
-                position:relative;
-            "
-        >
+                                "Piso Cerâmico":
+                                    "piso-ceramico.jpg",
 
-            <button
-                id="fechar-modal"
-                style="
-                    position:absolute;
-                    top:10px;
-                    right:15px;
-                    border:none;
-                    background:none;
-                    font-size:22px;
-                    cursor:pointer;
-                "
-            >
-                &times;
-            </button>
+                                "Tubo PVC 100mm":
+                                    "tubo-pvc-100mm.jpg",
 
+                                "Ferro 10mm":
+                                    "ferro-10mm.jpg"
 
-            <img
-                id="modal-imagem"
-                src=""
-                alt="Produto"
-                style="
-                    width:100%;
-                    max-height:220px;
-                    object-fit:contain;
-                    border-radius:6px;
-                "
-            >
+                            };
 
+                            const imagem =
+                                imagens[produto.nome]
+                                ?? "produto-sem-imagem.jpg";
 
-            <h2 id="modal-nome">
-            </h2>
+                            return `
+                                <tr>
 
+                                    <td>
+                                        #${produto.id}
+                                    </td>
 
-            <p id="modal-categoria">
-            </p>
+                                    <td>
+                                        <img
+                                            src="imagens/img/produtos/${imagem}"
+                                            alt="${produto.nome}"
+                                            class="produto-imagem"
+                                        >
+                                    </td>
 
+                                    <td>
+                                        <strong>
+                                            ${produto.nome}
+                                        </strong>
+                                    </td>
 
-            <h3 id="modal-preco">
-            </h3>
+                                    <td>
+                                        ${produto.categoria}
+                                    </td>
 
+                                    <td>
+                                        ${preco}
+                                    </td>
 
-            <p id="modal-descricao">
-            </p>
+                                    <td>
+                                        ${produto.quantidadeVendida ?? 0}
+                                    </td>
 
-        </div>
+                                </tr>
+                            `;
 
-    </div>
+                        }
+                    );
 
+                tabela.innerHTML =
+                    produtosFormatados.join("");
 
+            }
 
+        }
+
+        const listaEstoque =
+            document.getElementById(
+                "lista-estoque-critico"
+            );
+
+        if (listaEstoque) {
+
+            if (estoqueCritico.length === 0) {
+
+                listaEstoque.innerHTML =
+                    "<li>Nenhum produto com estoque crítico.</li>";
+
+            } else {
+
+                listaEstoque.innerHTML =
+                    estoqueCritico
+                        .map(
+                            produto =>
+                                `<li>
+                                    ${produto.nome} -
+                                    ${produto.estoque} unidades
+                                </li>`
+                        )
+                        .join("");
+
+            }
+
+        }
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar dashboard:",
+            erro
+        );
+
+        const produtoMaisVendido =
+            document.getElementById(
+                "produto-mais-vendido"
+            );
+
+        if (produtoMaisVendido) {
+
+            produtoMaisVendido.textContent =
+                "Não foi possível carregar os dados.";
+
+        }
+
+    }
+
+}
+
+carregarDashboard();
+
+</script>
 
 </body>
 

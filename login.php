@@ -1,10 +1,13 @@
 <?php
+
 session_start();
 
 if (isset($_SESSION["id"])) {
     header("Location: dashboard.php");
     exit();
 }
+
+
 
 include("config/conexao.php");
 
@@ -22,14 +25,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } else {
 
         $stmt = $conn->prepare(
-            "SELECT id, nome, senha FROM usuarios WHERE usuario = ?"
+            "SELECT id, nome, senha
+             FROM usuarios
+             WHERE usuario = ?"
         );
 
         if (!$stmt) {
-            $erro = "Erro ao preparar a consulta: " . $conn->error;
+
+            $erro = "Erro ao preparar consulta: " . $conn->error;
+
         } else {
 
             $stmt->bind_param("s", $usuario);
+
             $stmt->execute();
 
             $resultado = $stmt->get_result();
@@ -38,6 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 $user = $resultado->fetch_assoc();
 
+            
                 if ($senha === $user["senha"]) {
 
                     $_SESSION["id"] = $user["id"];
@@ -60,155 +69,209 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 }
+
 ?>
 
 <!DOCTYPE html>
+
 <html lang="pt-br">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Login - Depósito Brasil</title>
+<meta charset="UTF-8">
 
-    <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Segoe UI', sans-serif;
-    }
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        background: #2b2b2b;
-    }
+<title>Login - Depósito Brasil</title>
 
-    .login-card {
-        background: #ffffff;
-        padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-        width: 100%;
-        max-width: 380px;
-    }
+<style>
 
-    .login-card h2 {
-        margin-bottom: 20px;
-        text-align: center;
-        color: #333333;
-    }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
 
-    .form-group {
-        margin-bottom: 15px;
-    }
+body {
 
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 500;
-        color: #333333;
-    }
+    min-height: 100vh;
 
-    .form-group input {
-        width: 100%;
-        padding: 10px;
-        border: 2px solid #d32f2f;
-        border-radius: 4px;
-        outline: none;
-    }
+    display: flex;
 
-    .form-group input:focus {
-        border-color: #a00000;
-        box-shadow: 0 0 5px rgba(211, 47, 47, 0.4);
-    }
+    justify-content: center;
 
-    .btn-login {
-        width: 100%;
-        padding: 10px;
-        background: #d32f2f;
-        color: #ffffff;
-        border: none;
-        border-radius: 4px;
-        font-weight: bold;
-        cursor: pointer;
-    }
+    align-items: center;
 
-    .btn-login:hover {
-        background: #a00000;
-    }
+    background: #2b2b2b;
+}
 
-    .alert {
-        background: #f8d7da;
-        color: #721c24;
-        padding: 10px;
-        border-radius: 4px;
-        margin-bottom: 15px;
-        text-align: center;
-    }
+.login-card {
+
+    width: 100%;
+
+    max-width: 380px;
+
+    background: white;
+
+    padding: 30px;
+
+    border-radius: 10px;
+
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+}
+
+.login-card h2 {
+
+    text-align: center;
+
+    margin-bottom: 25px;
+
+    color: #333;
+}
+
+.form-group {
+
+    margin-bottom: 18px;
+}
+
+.form-group label {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    font-weight: bold;
+
+    color: #333;
+}
+
+.form-group input {
+
+    width: 100%;
+
+    padding: 11px;
+
+    border: 2px solid #d32f2f;
+
+    border-radius: 5px;
+
+    outline: none;
+}
+
+.form-group input:focus {
+
+    border-color: #a00000;
+}
+
+.btn-login {
+
+    width: 100%;
+
+    padding: 11px;
+
+    border: none;
+
+    border-radius: 5px;
+
+    background: #d32f2f;
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.btn-login:hover {
+
+    background: #a00000;
+}
+
+.alert {
+
+    background: #f8d7da;
+
+    color: #721c24;
+
+    padding: 10px;
+
+    border-radius: 5px;
+
+    margin-bottom: 15px;
+
+    text-align: center;
+}
+
 </style>
+
 </head>
 
 <body>
 
-    <div class="login-card">
+<div class="login-card">
 
-        <h2>Entrar no Sistema</h2>
+    <h2>Entrar no Sistema</h2>
 
-        <?php if ($erro !== ""): ?>
+    <?php if ($erro !== ""): ?>
 
-            <div class="alert">
-                <?php echo htmlspecialchars($erro); ?>
-            </div>
+        <div class="alert">
 
-        <?php endif; ?>
+            <?= htmlspecialchars($erro); ?>
 
-        <form method="POST" action="login.php">
+        </div>
 
-            <div class="form-group">
+    <?php endif; ?>
 
-                <label for="usuario">
-                    Usuário
-                </label>
+    <form method="POST">
 
-                <input
-                    type="text"
-                    id="usuario"
-                    name="usuario"
-                    required
-                >
+        <div class="form-group">
 
-            </div>
+            <label for="usuario">
+                Usuário
+            </label>
 
-            <div class="form-group">
-
-                <label for="senha">
-                    Senha
-                </label>
-
-                <input
-                    type="password"
-                    id="senha"
-                    name="senha"
-                    required
-                >
-
-            </div>
-
-            <button
-                type="submit"
-                name="entrar"
-                class="btn-login"
+            <input
+                type="text"
+                id="usuario"
+                name="usuario"
+                required
             >
-                Entrar
-            </button>
 
-        </form>
+        </div>
 
-    </div>
+        <div class="form-group">
+
+            <label for="senha">
+                Senha
+            </label>
+
+            <input
+                type="password"
+                id="senha"
+                name="senha"
+                required
+            >
+
+        </div>
+
+        <button
+            type="submit"
+            class="btn-login"
+        >
+
+            Entrar
+
+        </button>
+
+    </form>
+
+</div>
 
 </body>
 

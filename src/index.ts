@@ -1,283 +1,115 @@
-import { processarMetricasDashboard } from "./dashboardServices.js";
-import type {
-    DadosDashboard,
-    MetricasDashboard
-} from "./types.js";
+import type { DadosDashboard } from "./types.js";
 
-async function buscarDadosDashboard(): Promise<DadosDashboard> {
+import {
+    processarMetricasDashboard
+} from "./dashboardServices.js";
 
-    const resposta = await fetch("api_dashboard.php");
+async function buscarDados(): Promise<DadosDashboard> {
 
-    if (!resposta.ok) {
-        throw new Error(`Erro HTTP: ${resposta.status}`);
-    }
-
-    const dados: DadosDashboard = await resposta.json();
-
-    return dados;
-}
-
-export async function carregarDashboard(): Promise<void> {
-
+    /*
+    REQUISITO: Consumo de API e Resolução de Fluxo Assíncrono
+    O fetch realiza a comunicação entre o TypeScript
+    e a API PHP que fornece os dados em JSON.
+    */
     try {
 
-        const dados = await buscarDadosDashboard();
+        const resposta = await fetch("api_dashboard.php");
 
-        const metricas: MetricasDashboard =
-            processarMetricasDashboard(dados);
+        if (!resposta.ok) {
+            throw new Error(
+                `Erro HTTP: ${resposta.status}`
+            );
+        }
 
-        renderizarDashboard(metricas);
+        const dados: DadosDashboard =
+            await resposta.json();
+
+        if (!dados.sucesso) {
+            throw new Error(
+                dados.mensagem ?? "A API retornou um erro."
+            );
+        }
+
+        return dados;
 
     } catch (erro) {
 
+        console.error(
+            "Erro ao buscar dados:",
+            erro
+        );
+
+        throw erro;
+    }
+}
+
+async function iniciarDashboard(): Promise<void> {
+
+    try {
+
+        const dados = await buscarDados();
+
+        const metricas =
+            processarMetricasDashboard(dados);
+
+        /*
+        REQUISITO: Manipulação Segura do DOM
+        Os elementos são verificados antes de receber
+        os dados processados pelo TypeScript.
+        */
+        const faturamentoTotal =
+            document.getElementById(
+                "faturamento-total"
+            );
+
+        const produtoMaisVendido =
+            document.getElementById(
+                "produto-mais-vendido"
+            );
+
+        const maiorEstoque =
+            document.getElementById(
+                "maior-estoque"
+            );
+
+        const menorEstoque =
+            document.getElementById(
+                "menor-estoque"
+            );
+
+        if (faturamentoTotal) {
+            faturamentoTotal.textContent =
+                metricas.faturamentoFormatado;
+        }
+
+        if (produtoMaisVendido) {
+            produtoMaisVendido.textContent =
+                metricas.produtoMaisVendido;
+        }
+
+        if (maiorEstoque) {
+            maiorEstoque.textContent =
+                metricas.maiorEstoque;
+        }
+
+        if (menorEstoque) {
+            menorEstoque.textContent =
+                metricas.menorEstoque;
+        }
+
+    } catch (erro) {
+
+        /*
+        REQUISITO: Tratamento de Exceções
+        Caso a API ou o banco apresente algum problema,
+        o erro é capturado sem quebrar a aplicação.
+        */
         console.error(
             "Erro ao carregar dashboard:",
             erro
         );
 
-        exibirMensagemVazia(
-            "Erro ao carregar dados."
-        );
     }
 }
 
-function renderizarDashboard(
-    metricas: MetricasDashboard
-): void {
-
-    const elProdutos =
-        document.getElementById("total-produtos");
-
-    const elClientes =
-        document.getElementById("total-clientes");
-
-    const elFuncionarios =
-        document.getElementById("total-funcionarios");
-
-    const elFaturamento =
-        document.getElementById("faturamento-total");
-
-    const elMaisVendido =
-        document.getElementById("produto-mais-vendido");
-
-    if (elProdutos) {
-        elProdutos.textContent =
-            String(metricas.totalProdutos);
-    }
-
-    if (elClientes) {
-        elClientes.textContent =
-            String(metricas.totalClientes);
-    }
-
-    if (elFuncionarios) {
-        elFuncionarios.textContent =
-            String(metricas.totalFuncionarios);
-    }
-
-    if (elFaturamento) {
-        elFaturamento.textContent =
-            metricas.faturamentoTotalFormatado;
-    }
-
-    if (elMaisVendido) {
-        elMaisVendido.textContent =
-            metricas.produtoMaisVendido;
-    }
-
-    renderizarTabela(metricas);
-}
-
-function renderizarTabela(
-    metricas: MetricasDashboard
-): void {
-
-    const tabela =
-        document.getElementById("tabela-produtos-corpo");
-
-    if (!tabela) {
-        return;
-    }
-
-    if (
-        metricas.produtosFormatadosParaTabela.length === 0
-    ) {
-
-        tabela.innerHTML = `
-            <tr>
-                <td colspan="6"
-                    style="text-align:center;">
-                    Nenhum produto registrado.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-    tabela.innerHTML =
-        metricas.produtosFormatadosParaTabela
-            .map((produto) => {
-
-                return `
-                    <tr>
-
-                        <td>#${produto.id}</td>
-
-                        <td>
-                            <img
-                                src="${produto.imagemUrl}"
-                                alt="${produto.nome}"
-                                style="
-                                    width:50px;
-                                    height:50px;
-                                    object-fit:cover;
-                                    border-radius:5px;
-                                "
-                                onerror="this.src='imagens/sem-imagem.jpg'"
-                            >
-                        </td>
-
-                        <td>
-                            <strong>
-                                ${produto.nome}
-                            </strong>
-                        </td>
-
-                        <td>
-                            ${produto.categoria}
-                        </td>
-
-                        <td>
-                            ${produto.precoFormatado}
-                        </td>
-
-                        <td>
-                            <button
-                                class="btn-detalhes"
-                                data-nome="${produto.nome}"
-                                data-categoria="${produto.categoria}"
-                                data-preco="${produto.precoFormatado}"
-                                data-descricao="${produto.descricao}"
-                                data-imagem="${produto.imagemUrl}">
-                                Ver Detalhes
-                            </button>
-                        </td>
-
-                    </tr>
-                `;
-
-            })
-            .join("");
-
-    configurarEventosModal();
-}
-
-function configurarEventosModal(): void {
-
-    const botoes =
-        document.querySelectorAll(".btn-detalhes");
-
-    const modal =
-        document.getElementById("modal-produto");
-
-    const fecharModal =
-        document.getElementById("fechar-modal");
-
-    botoes.forEach((botao) => {
-
-        botao.addEventListener("click", (evento: Event) => {
-
-            const target =
-                evento.currentTarget as HTMLButtonElement;
-
-            const nome =
-                target.getAttribute("data-nome") || "";
-
-            const categoria =
-                target.getAttribute("data-categoria") || "";
-
-            const preco =
-                target.getAttribute("data-preco") || "";
-
-            const descricao =
-                target.getAttribute("data-descricao") || "";
-
-            const imagem =
-                target.getAttribute("data-imagem") || "";
-
-            const elNome =
-                document.getElementById("modal-nome");
-
-            const elCategoria =
-                document.getElementById("modal-categoria");
-
-            const elPreco =
-                document.getElementById("modal-preco");
-
-            const elDescricao =
-                document.getElementById("modal-descricao");
-
-            const elImagem =
-                document.getElementById("modal-imagem");
-
-            if (elNome) {
-                elNome.textContent = nome;
-            }
-
-            if (elCategoria) {
-                elCategoria.textContent =
-                    `Categoria: ${categoria}`;
-            }
-
-            if (elPreco) {
-                elPreco.textContent = preco;
-            }
-
-            if (elDescricao) {
-                elDescricao.textContent = descricao;
-            }
-
-            if (
-                elImagem instanceof HTMLImageElement
-            ) {
-                elImagem.src = imagem;
-            }
-
-            if (modal) {
-                modal.style.display = "flex";
-            }
-
-        });
-
-    });
-
-    if (fecharModal && modal) {
-
-        fecharModal.addEventListener("click", () => {
-
-            modal.style.display = "none";
-
-        });
-
-    }
-}
-
-function exibirMensagemVazia(
-    mensagem: string
-): void {
-
-    const elFaturamento =
-        document.getElementById("faturamento-total");
-
-    if (elFaturamento) {
-        elFaturamento.textContent = mensagem;
-    }
-}
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-        carregarDashboard();
-    }
-);
+iniciarDashboard();
